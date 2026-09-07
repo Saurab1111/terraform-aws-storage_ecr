@@ -15,24 +15,14 @@ resource "aws_ecr_repository" "this" {
   tags = var.tags
 }
 
-resource "aws_ecr_lifecycle_policy" "this" {
-  count      = var.create_lifecycle_policy ? 1 : 0
+resource "aws_ecr_repository_policy" "this" {
+  count      = var.repository_policy != "" ? 1 : 0
   repository = aws_ecr_repository.this.name
+  policy     = var.repository_policy
+}
 
-  policy = jsonencode({
-    rules = [
-      {
-        rulePriority = 1
-        description  = "Retain only recent images"
-        selection = {
-          tagStatus   = "any"
-          countType   = "imageCountMoreThan"
-          countNumber = var.lifecycle_policy_max_image_count
-        }
-        action = {
-          type = "expire"
-        }
-      }
-    ]
-  })
+resource "aws_ecr_lifecycle_policy" "this" {
+  count      = var.lifecycle_policy != "" ? 1 : 0
+  repository = aws_ecr_repository.this.name
+  policy     = var.lifecycle_policy
 }
