@@ -1,62 +1,66 @@
 variable "repository_name" {
+  description = "Name of the ECR repository."
   type        = string
-  description = "Name of the ECR repository"
+  default     = "app-container-repo"
 }
 
 variable "image_tag_mutability" {
+  description = "Image tag mutability setting for the repository."
   type        = string
-  description = "Image tag mutability setting"
-  default     = "MUTABLE"
+  default     = "IMMUTABLE"
 
   validation {
     condition     = contains(["MUTABLE", "IMMUTABLE"], var.image_tag_mutability)
-    error_message = "image_tag_mutability must be either MUTABLE or IMMUTABLE."
+    error_message = "image_tag_mutability must be MUTABLE or IMMUTABLE."
   }
 }
 
 variable "scan_on_push" {
+  description = "Enable image scanning on push."
   type        = bool
-  description = "Enable image scanning on push"
   default     = true
 }
 
 variable "encryption_type" {
+  description = "Encryption type for the repository."
   type        = string
-  description = "Encryption type for the repository"
   default     = "AES256"
 
   validation {
     condition     = contains(["AES256", "KMS"], var.encryption_type)
-    error_message = "encryption_type must be either AES256 or KMS."
+    error_message = "encryption_type must be AES256 or KMS."
   }
 }
 
 variable "kms_key" {
+  description = "KMS key ARN to use when encryption type is KMS."
   type        = string
-  description = "KMS key ARN for repository encryption when using KMS"
   default     = ""
 }
 
 variable "force_delete" {
+  description = "Force delete the repository even if it contains images."
   type        = bool
-  description = "Force delete the repository even if it contains images"
   default     = false
 }
 
+variable "repository_policy" {
+  description = "JSON formatted IAM policy for the repository."
+  type        = string
+  default     = ""
+}
+
+variable "lifecycle_policy" {
+  description = "JSON formatted lifecycle policy for image cleanup."
+  type        = string
+  default     = ""
+}
+
 variable "tags" {
+  description = "Tags to apply to the repository."
   type        = map(string)
-  description = "Tags to apply to the repository"
-  default     = {}
-}
-
-variable "create_lifecycle_policy" {
-  type        = bool
-  description = "Create a lifecycle policy for image retention"
-  default     = true
-}
-
-variable "lifecycle_policy_max_image_count" {
-  type        = number
-  description = "Maximum number of images to retain in lifecycle policy"
-  default     = 30
+  default = {
+    Environment = "dev"
+    ManagedBy   = "terraform"
+  }
 }
